@@ -176,7 +176,7 @@ public:
 
 private:
   uint8_t  _dataPin   = -1;
-  uint8_t  _clockPin  = -1
+  uint8_t  _clockPin  = -1;
 
   uint8_t  _gain      = 128;     //  default channel A
   uint32_t _lastRead  = 0;
