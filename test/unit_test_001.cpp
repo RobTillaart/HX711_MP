@@ -34,7 +34,7 @@ uint8_t clockPin = 7;
 
 unittest_setup()
 {
-  fprintf(stderr, "HX711_LIB_VERSION: %s\n", (char *) HX711_LIB_VERSION);
+  fprintf(stderr, "HX711_MP_LIB_VERSION: %s\n", (char *) HX711_MP_LIB_VERSION);
 }
 
 unittest_teardown()
