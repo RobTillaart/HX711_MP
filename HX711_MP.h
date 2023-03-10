@@ -34,6 +34,9 @@ const uint8_t HX711_CHANNEL_A_GAIN_128 = 128;  // default
 const uint8_t HX711_CHANNEL_A_GAIN_64 = 64;
 const uint8_t HX711_CHANNEL_B_GAIN_32 = 32;
 
+//  maximum size for internal mapping array
+const uint8_t HX711_MP_MAX_SIZE = 10;
+
 
 class HX711_MP
 {
@@ -141,7 +144,7 @@ public:
   //       weight = weight in units
   //  setCalibrate() can be adjusted runtime.
   bool     setCalibrate(uint8_t idx, float raw, float weight);
-  float    getCalibrateSize();
+  uint8_t  getCalibrateSize();
   float    getCalibrateRaw(uint8_t idx);
   float    getCalibrateWeight(uint8_t idx);
 
@@ -172,20 +175,20 @@ public:
 
 
 private:
-  uint8_t  _dataPin;
-  uint8_t  _clockPin;
+  uint8_t  _dataPin   = -1;
+  uint8_t  _clockPin  = -1
 
   uint8_t  _gain      = 128;     //  default channel A
   uint32_t _lastRead  = 0;
-  uint8_t  _mode      = 0;
+  uint8_t  _mode      = HX711_AVERAGE_MODE;
 
   void     _insertSort(float * array, uint8_t size);
   uint8_t  _shiftIn();
 
   //  calibration arrays.
-  float    _in[10];
-  float    _out[10];
-  uint8_t  _size;
+  float    _in[HX711_MP_MAX_SIZE];
+  float    _out[HX711_MP_MAX_SIZE];
+  uint8_t  _size = HX711_MP_MAX_SIZE;
   float    _multiMap(float val);
 };
 

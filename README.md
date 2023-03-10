@@ -37,6 +37,7 @@ Parameter sets the size of for the calibration arrays. 2..10.
 - **void begin(uint8_t dataPin, uint8_t clockPin)** sets a fixed gain 128 for now.
 - **void reset()** set internal state to start condition.
 Reset also does a power down / up cycle.
+It does not reset the calibration data.
 - **bool is_ready()** checks if load cell is ready to read.
 - **void wait_ready(uint32_t ms = 0)** wait until ready, check every ms.
 - **bool wait_ready_retry(uint8_t retries = 3, uint32_t ms = 0)** wait max retries.
@@ -142,7 +143,9 @@ to a certain weight.
 Note the index is zero based so a size of 10 uses index 0..9.
 - **float getCalibrateSize()** returns the size of the internal array, typical 2..10
 - **float getCalibrateRaw(uint8_t idx)** get the raw value at the array.
+Returns 0 is idx is out of range.
 - **float getCalibrateWeight(uint8_t idx)** get the mapped weight at the array index.
+Returns 0 is idx is out of range.
 
 This way of calibration allows 
 - compensate for a non linear sensor by interpolating linear over multiple points.
@@ -213,6 +216,8 @@ Points from HX711 are not repeated here
   - runtime changing of the mapping.
 - investigate malloc/free for the mapping arrays
 - add performance figures
+- Calibration
+  - Returns 0 is idx is out of range ==> NaN ?
 
 #### Could
 

@@ -13,8 +13,14 @@
 HX711_MP::HX711_MP(uint8_t size)
 {
   _size = size;
-  if (_size > 10) _size = 10;
-  if (_size <  2) _size = 2;
+  if (_size >= HX711_MP_MAX_SIZE)
+  {
+    _size = HX711_MP_MAX_SIZE;
+  }
+  else if (_size <  2) 
+  {
+    _size = 2;   //  hard coded minimum!!
+  }
   reset();
 }
 
@@ -286,14 +292,14 @@ uint8_t HX711_MP::get_gain()
 //
 bool HX711_MP::setCalibrate(uint8_t idx, float raw, float weight)
 {
-  if (idx > _size) return false;
-  _in[idx] = raw;
+  if (idx >= _size) return false;
+  _in[idx]  = raw;
   _out[idx] = weight;
   return true;
 }
 
 
-float HX711_MP::getCalibrateSize()
+uint8_t HX711_MP::getCalibrateSize()
 {
   return _size;
 }
@@ -301,14 +307,14 @@ float HX711_MP::getCalibrateSize()
 
 float HX711_MP::getCalibrateRaw(uint8_t idx)
 {
-  if (idx > _size) return 0;
+  if (idx >= _size) return 0;  //  NaN
   return _in[idx];
 }
 
 
 float HX711_MP::getCalibrateWeight(uint8_t idx)
 {
-  if (idx > _size) return 0;
+  if (idx >= _size) return 0;  //  NaN
   return _out[idx];
 }
 
