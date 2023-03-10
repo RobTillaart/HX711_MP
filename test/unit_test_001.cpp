@@ -25,7 +25,7 @@
 
 
 #include "Arduino.h"
-#include "HX711.h"
+#include "HX711_MP.h"
 
 
 uint8_t dataPin = 6;
@@ -58,7 +58,7 @@ unittest(test_constants)
 
 unittest(test_constructor)
 {
-  HX711 scale;
+  HX711_MP scale;
   scale.begin(dataPin, clockPin);
 
   //  pins are default LOW apparently.
@@ -70,7 +70,7 @@ unittest(test_constructor)
 
 unittest(test_gain)
 {
-  HX711 scale;
+  HX711_MP scale;
   scale.begin(dataPin, clockPin);
 
   //  rewrite with constants?
@@ -106,7 +106,7 @@ unittest(test_gain)
 
 unittest(test_scale)
 {
-  HX711 scale;
+  HX711_MP scale;
   scale.begin(dataPin, clockPin);
 
   // default
@@ -124,7 +124,7 @@ unittest(test_scale)
 
 unittest(test_offset)
 {
-  HX711 scale;
+  HX711_MP scale;
   scale.begin(dataPin, clockPin);
 
   // default offset
@@ -142,7 +142,7 @@ unittest(test_offset)
 
 unittest(test_tare)
 {
-  HX711 scale;
+  HX711_MP scale;
   scale.begin(dataPin, clockPin);
 
   // default tare
@@ -154,26 +154,9 @@ unittest(test_tare)
 }
 
 
-unittest(test_unit_price)
-{
-  HX711 scale;
-  scale.begin(dataPin, clockPin);
-
-  assertEqual(0, scale.get_unit_price());
-
-  for (float up = 0.10; up < 10; up += 1.23)
-  {
-    scale.set_unit_price(up);
-    assertEqualFloat(up, scale.get_unit_price(), 0.001);
-  }
-  scale.set_unit_price();
-  assertEqualFloat(1.0, scale.get_unit_price(), 0.001);
-}
-
-
 unittest(test_operational_mode)
 {
-  HX711 scale;
+  HX711_MP scale;
   scale.begin(dataPin, clockPin);
 
   assertEqual(0x00, scale.get_mode());
