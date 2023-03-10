@@ -22,6 +22,25 @@ This library uses a multi point calibration - up to 10 points - which allows to
 compensate for non-linearities in the sensor.
 The HX711 library uses a simpler linear relation between raw measurements and weights.
 
+#### Related 
+
+- https://github.com/RobTillaart/HX711
+
+
+#### Differences HX711
+
+Although the library is derived from the HX711 library they are not compatible.
+Almost is the right word.
+
+Due to the different way of calibration the default **tare()** function is not
+supported anymore. 
+This function calculated the offset in the raw data to get the zero value.
+
+As in the multi point calibration there are up to 10 points that indicate
+the zero point the whole concept of offset and scale have "left the building".
+
+In practice this means that the return value of **get_value()**, **read()** functions et al are differs from the HX711 library. This means they are not one to one interchangeable (e.g. HX711_MP with 2 points behaves differently). This is more true as the zero point does not need to be the index = 0 of the array. ( due to the support of non linear negative forces ).
+
 
 ## Interface
 
