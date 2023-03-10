@@ -210,7 +210,9 @@ Points from HX711 are not repeated here
 #### Should
 
 - add examples
+  - runtime changing of the mapping.
 - investigate malloc/free for the mapping arrays
+- add performance figures
 
 #### Could
 

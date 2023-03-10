@@ -58,7 +58,7 @@ unittest(test_constants)
 
 unittest(test_constructor)
 {
-  HX711_MP scale;
+  HX711_MP scale(5);
   scale.begin(dataPin, clockPin);
 
   //  pins are default LOW apparently.
@@ -70,7 +70,7 @@ unittest(test_constructor)
 
 unittest(test_gain)
 {
-  HX711_MP scale;
+  HX711_MP scale(5);
   scale.begin(dataPin, clockPin);
 
   //  rewrite with constants?
@@ -106,7 +106,7 @@ unittest(test_gain)
 
 unittest(test_scale)
 {
-  HX711_MP scale;
+  HX711_MP scale(5);
   scale.begin(dataPin, clockPin);
 
   // default
@@ -119,38 +119,6 @@ unittest(test_scale)
   }
   scale.set_scale();
   assertEqualFloat(1.0, scale.get_scale(), 0.001);
-}
-
-
-unittest(test_offset)
-{
-  HX711_MP scale;
-  scale.begin(dataPin, clockPin);
-
-  // default offset
-  assertEqual(0, scale.get_offset());
-
-  for (long of = -100; of < 100; of += 13)
-  {
-    scale.set_offset(of);
-    assertEqual(of, scale.get_offset() );
-  }
-  scale.set_offset();
-  assertEqual(0, scale.get_offset());
-}
-
-
-unittest(test_tare)
-{
-  HX711_MP scale;
-  scale.begin(dataPin, clockPin);
-
-  // default tare
-  assertEqual(0, scale.get_tare());
-  assertFalse(scale.tare_set());
-
-  scale.set_offset(123);
-  assertTrue(scale.tare_set());
 }
 
 
@@ -171,4 +139,6 @@ unittest(test_operational_mode)
 
 unittest_main()
 
-// --------
+
+//  -- END OF FILE --
+
