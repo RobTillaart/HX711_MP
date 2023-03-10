@@ -7,10 +7,13 @@
 
 #include "HX711_MP.h"
 
-HX711_MP scale;
+//  6 calibration points
+//  0 = Tare
+//  1,2,3,..8,9 is user defined.
+HX711_MP scale(10);
 
-uint8_t dataPin = 6;
-uint8_t clockPin = 7;
+uint8_t dataPin = 16;
+uint8_t clockPin = 17;
 
 uint32_t start, stop;
 volatile float f;
@@ -26,13 +29,27 @@ void setup()
 
   scale.begin(dataPin, clockPin);
 
-  // TODO find a nice solution for this calibration..
-  // load cell factor 20 KG
-  // scale.set_scale(127.15);
-  // load cell factor 5 KG
-  scale.set_scale(420.0983);       // TODO you need to calibrate this yourself.
-  // reset the scale to zero = 0
-  scale.tare();
+  //  Calibration
+  //  adjust the data to your measurements
+  //  setCalibrate(index, rawRead, weight);
+  scale.setCalibrate(0, 1000, -10000);
+  scale.setCalibrate(1, 1300, 0);
+  scale.setCalibrate(2, 2000, 20000);
+  scale.setCalibrate(3, 4000, 30000);
+  scale.setCalibrate(4, 5000, 40000);
+  scale.setCalibrate(5, 5200, 50000);
+  scale.setCalibrate(6, 6000, 60000);
+  scale.setCalibrate(7, 6500, 70000);
+  scale.setCalibrate(8, 6750, 80000);
+  scale.setCalibrate(9, 6900, 90000);
+
+  for (uint32_t raw = 0; raw <= 7000; raw += 20)
+  {
+    Serial.print(raw);
+    Serial.print("\t");
+    Serial.println(scale.testCalibration(raw));
+  }
+  delay(5000);
 }
 
 
