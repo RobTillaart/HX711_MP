@@ -19,6 +19,9 @@ read_median	KEYWORD2
 read_medavg	KEYWORD2
 read_runavg	KEYWORD2
 
+get_value	KEYWORD2
+get_units	KEYWORD2
+
 set_raw_mode	KEYWORD2
 set_average_mode	KEYWORD2
 set_median_mode	KEYWORD2
@@ -26,26 +29,14 @@ set_medavg_mode	KEYWORD2
 set_runavg_mode	KEYWORD2
 get_mode	KEYWORD2
 
-get_value	KEYWORD2
-get_units	KEYWORD2
-
-tare	KEYWORD2
-get_tare	KEYWORD2
-tare_set	KEYWORD2
-
 set_gain	KEYWORD2
 get_gain	KEYWORD2
-set_chanA_gain128	KEYWORD2
-set_chanA_gain64	KEYWORD2
-set_chanB_gain32	KEYWORD2
 
-set_scale	KEYWORD2
-get_scale	KEYWORD2
-
-set_offset	KEYWORD2
-get_offset	KEYWORD2
-
-calibrate_scale	KEYWORD2
+setCalibrate	KEYWORD2
+getCalibrateSize	KEYWORD2
+getCalibrateRaw	KEYWORD2
+adjustCalibrateRaw	KEYWORD2
+getCalibrateWeight	KEYWORD2
 
 power_down	KEYWORD2
 power_up	KEYWORD2
@@ -56,7 +47,7 @@ last_read	KEYWORD2
 
 
 # Constants (LITERAL1)
-HX711_LIB_VERSION	LITERAL1
+HX711_MP_LIB_VERSION	LITERAL1
 
 HX711_RAW_MODE	LITERAL1
 HX711_AVERAGE_MODE	LITERAL1

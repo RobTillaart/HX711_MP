@@ -58,7 +58,7 @@ unittest(test_constants)
 
 unittest(test_constructor)
 {
-  HX711_MP scale;
+  HX711_MP scale(5);
   scale.begin(dataPin, clockPin);
 
   //  pins are default LOW apparently.
@@ -70,7 +70,7 @@ unittest(test_constructor)
 
 unittest(test_gain)
 {
-  HX711_MP scale;
+  HX711_MP scale(5);
   scale.begin(dataPin, clockPin);
 
   //  rewrite with constants?
@@ -104,59 +104,10 @@ unittest(test_gain)
 }
 
 
-unittest(test_scale)
-{
-  HX711_MP scale;
-  scale.begin(dataPin, clockPin);
-
-  // default
-  assertEqualFloat(1.0, scale.get_scale(), 0.001);
-
-  for (float sc = 0.1; sc < 2.0; sc += 0.1)
-  {
-    scale.set_scale(sc);
-    assertEqualFloat(sc, scale.get_scale(), 0.001);
-  }
-  scale.set_scale();
-  assertEqualFloat(1.0, scale.get_scale(), 0.001);
-}
-
-
-unittest(test_offset)
-{
-  HX711_MP scale;
-  scale.begin(dataPin, clockPin);
-
-  // default offset
-  assertEqual(0, scale.get_offset());
-
-  for (long of = -100; of < 100; of += 13)
-  {
-    scale.set_offset(of);
-    assertEqual(of, scale.get_offset() );
-  }
-  scale.set_offset();
-  assertEqual(0, scale.get_offset());
-}
-
-
-unittest(test_tare)
-{
-  HX711_MP scale;
-  scale.begin(dataPin, clockPin);
-
-  // default tare
-  assertEqual(0, scale.get_tare());
-  assertFalse(scale.tare_set());
-
-  scale.set_offset(123);
-  assertTrue(scale.tare_set());
-}
-
 
 unittest(test_operational_mode)
 {
-  HX711_MP scale;
+  HX711_MP scale(5);
   scale.begin(dataPin, clockPin);
 
   assertEqual(0x00, scale.get_mode());
@@ -169,6 +120,46 @@ unittest(test_operational_mode)
 }
 
 
+
+unittest(test_calibration)
+{
+  HX711_MP scale(5);
+  HX711_MP scale1(11);
+  HX711_MP scale2(1);
+
+  //  check getCalibrateSize
+  assertEqual(5, scale.getCalibrateSize());
+  assertEqual(10, scale1.getCalibrateSize());
+  assertEqual(2, scale2.getCalibrateSize());
+
+  //  check setCalibrate()
+  assertTrue(scale.setCalibrate(0, 1000, -10000));
+  assertTrue(scale.setCalibrate(1, 1300, 0));
+  assertTrue(scale.setCalibrate(2, 2000, 20000));
+  assertTrue(scale.setCalibrate(3, 4000, 30000));
+  assertTrue(scale.setCalibrate(4, 5000, 40000));
+  assertFalse(scale.setCalibrate(5, 6000, 50000));
+
+  //  check getCalibrateRaw()
+  assertEqual(1000, scale.getCalibrateRaw(0));
+  assertEqual(1300, scale.getCalibrateRaw(1));
+  assertEqual(2000, scale.getCalibrateRaw(2));
+  assertEqual(4000, scale.getCalibrateRaw(3));
+  assertEqual(5000, scale.getCalibrateRaw(4));
+  assertEqual(0, scale.getCalibrateRaw(5));
+  
+  //  check getCalibrateWeight
+  assertEqual(-10000, scale.getCalibrateWeight(0));
+  assertEqual(000000, scale.getCalibrateWeight(1));
+  assertEqual( 20000, scale.getCalibrateWeight(2));
+  assertEqual( 30000, scale.getCalibrateWeight(3));
+  assertEqual( 40000, scale.getCalibrateWeight(4));
+  assertEqual(0, scale.getCalibrateWeight(5));
+}
+
+
 unittest_main()
 
-// --------
+
+//  -- END OF FILE --
+

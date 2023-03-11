@@ -3,14 +3,24 @@
 //  AUTHOR: Rob Tillaart
 // VERSION: 0.1.0
 // PURPOSE: Library for load cells for UNO
+//     URL: https://github.com/RobTillaart/HX711_MP
 //     URL: https://github.com/RobTillaart/HX711
 
 
 #include "HX711_MP.h"
 
 
-HX711_MP::HX711_MP()
+HX711_MP::HX711_MP(uint8_t size)
 {
+  _size = size;
+  if (_size >= HX711_MP_MAX_SIZE)
+  {
+    _size = HX711_MP_MAX_SIZE;
+  }
+  else if (_size <  2) 
+  {
+    _size = 2;   //  hard coded minimum!!
+  }
   reset();
 }
 
@@ -35,8 +45,6 @@ void HX711_MP::reset()
 {
   power_down();
   power_up();
-  _offset   = 0;
-  _scale    = 1;
   _gain     = HX711_CHANNEL_A_GAIN_128;
   _lastRead = 0;
   _mode     = HX711_AVERAGE_MODE;
@@ -49,6 +57,42 @@ bool HX711_MP::is_ready()
 }
 
 
+void HX711_MP::wait_ready(uint32_t ms)
+{
+  while (!is_ready())
+  {
+    delay(ms);
+  }
+}
+
+
+bool HX711_MP::wait_ready_retry(uint8_t retries, uint32_t ms)
+{
+  while (retries--)
+  {
+    if (is_ready()) return true;
+    delay(ms);
+  }
+  return false;
+}
+
+
+bool HX711_MP::wait_ready_timeout(uint32_t timeout, uint32_t ms)
+{
+  uint32_t start = millis();
+  while (millis() - start < timeout)
+  {
+    if (is_ready()) return true;
+    delay(ms);
+  }
+  return false;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  READ
+//
 //  From datasheet page 4
 //  When output data is not ready for retrieval,
 //       digital output pin DOUT is HIGH.
@@ -108,78 +152,6 @@ float HX711_MP::read()
 
   _lastRead = millis();
   return 1.0 * v.value;
-}
-
-
-//  note: if parameter gain == 0xFF40 some compilers
-//  will map that to 0x40 == HX711_CHANNEL_A_GAIN_64;
-//  solution: use uint32_t or larger parameters everywhere.
-//  note that changing gain/channel may take up to 400 ms (page 3)
-bool HX711_MP::set_gain(uint8_t gain, bool forced)
-{
-  if ( (not forced) && (_gain == gain)) return true;
-  switch(gain)
-  {
-    case HX711_CHANNEL_B_GAIN_32:
-    case HX711_CHANNEL_A_GAIN_64:
-    case HX711_CHANNEL_A_GAIN_128:
-      _gain = gain;
-      read();     //  next user read() is from right channel / gain
-      return true;
-  }
-  return false;   //  unchanged, but incorrect value.
-}
-
-
-uint8_t HX711_MP::get_gain()
-{
-  return _gain;
-}
-
-
-//  assumes tare() has been set.
-void HX711_MP::calibrate_scale(uint16_t weight, uint8_t times)
-{
-  _scale = (1.0 * weight) / (read_average(times) - _offset);
-}
-
-
-//  OBSOLETE 0.4.0  (LL is wrong)
-void HX711_MP::callibrate_scale(uint16_t weight, uint8_t times)
-{
-  calibrate_scale(weight, times);
-};
-
-
-void HX711_MP::wait_ready(uint32_t ms)
-{
-  while (!is_ready())
-  {
-    delay(ms);
-  }
-}
-
-
-bool HX711_MP::wait_ready_retry(uint8_t retries, uint32_t ms)
-{
-  while (retries--)
-  {
-    if (is_ready()) return true;
-    delay(ms);
-  }
-  return false;
-}
-
-
-bool HX711_MP::wait_ready_timeout(uint32_t timeout, uint32_t ms)
-{
-  uint32_t start = millis();
-  while (millis() - start < timeout)
-  {
-    if (is_ready()) return true;
-    delay(ms);
-  }
-  return false;
 }
 
 
@@ -252,25 +224,6 @@ float HX711_MP::read_runavg(uint8_t times, float alpha)
 }
 
 
-void HX711_MP::_insertSort(float * array, uint8_t size)
-{
-  uint8_t t, z;
-  float temp;
-  for (t = 1; t < size; t++)
-  {
-    z = t;
-    temp = array[z];
-    while( (z > 0) && (temp < array[z - 1] ))
-    {
-      array[z] = array[z - 1];
-      z--;
-    }
-    array[z] = temp;
-    yield();
-  }
-}
-
-
 float HX711_MP::get_value(uint8_t times)
 {
   float raw;
@@ -293,17 +246,91 @@ float HX711_MP::get_value(uint8_t times)
       raw = read_average(times);
       break;
   }
-  return raw - _offset;
-};
+  return raw;
+}
 
 
 float HX711_MP::get_units(uint8_t times)
 {
-  float units = get_value(times) * _scale;
-  return units;
-};
+  return _multiMap(get_value(times));
+}
 
 
+///////////////////////////////////////////////////////////////
+//
+//  GAIN
+//
+//  note: if parameter gain == 0xFF40 some compilers
+//  will map that to 0x40 == HX711_CHANNEL_A_GAIN_64;
+//  solution: use uint32_t or larger parameters everywhere.
+//  note that changing gain/channel may take up to 400 ms (page 3)
+bool HX711_MP::set_gain(uint8_t gain, bool forced)
+{
+  if ( (not forced) && (_gain == gain)) return true;
+  switch(gain)
+  {
+    case HX711_CHANNEL_B_GAIN_32:
+    case HX711_CHANNEL_A_GAIN_64:
+    case HX711_CHANNEL_A_GAIN_128:
+      _gain = gain;
+      read();     //  next user read() is from right channel / gain
+      return true;
+  }
+  return false;   //  unchanged, but incorrect value.
+}
+
+
+uint8_t HX711_MP::get_gain()
+{
+  return _gain;
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  CALIBRATION
+//
+bool HX711_MP::setCalibrate(uint8_t index, float raw, float weight)
+{
+  if (index >= _size) return false;
+  _in[index]  = raw;
+  _out[index] = weight;
+  return true;
+}
+
+
+uint8_t HX711_MP::getCalibrateSize()
+{
+  return _size;
+}
+
+
+float HX711_MP::getCalibrateRaw(uint8_t index)
+{
+  if (index >= _size) return 0;  //  NaN
+  return _in[index];
+}
+
+
+float HX711_MP::adjustCalibrateRaw(uint8_t index, float amount)
+{
+  if (index >= _size) return 0;  //  NaN
+  _in[index] += amount;
+  return _in[index];
+}
+
+
+float HX711_MP::getCalibrateWeight(uint8_t index)
+{
+  if (index >= _size) return 0;  //  NaN
+  return _out[index];
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  POWER MANAGEMENT
+//
 void HX711_MP::power_down()
 {
   // at least 60 us HIGH
@@ -315,6 +342,29 @@ void HX711_MP::power_down()
 void HX711_MP::power_up()
 {
   digitalWrite(_clockPin, LOW);
+}
+
+
+///////////////////////////////////////////////////////////////
+//
+//  PRIVATE
+//
+void HX711_MP::_insertSort(float * array, uint8_t size)
+{
+  uint8_t t, z;
+  float temp;
+  for (t = 1; t < size; t++)
+  {
+    z = t;
+    temp = array[z];
+    while( (z > 0) && (temp < array[z - 1] ))
+    {
+      array[z] = array[z - 1];
+      z--;
+    }
+    array[z] = temp;
+    yield();
+  }
 }
 
 
@@ -343,34 +393,25 @@ uint8_t HX711_MP::_shiftIn()
 }
 
 
-
-/*
-/////////////////////////////////////////////////////////////////////////////
-//
-//  HX711_MPC
-//
-HX711_MPC::HX711_MPC() : HX711()
+float HX711_MP::_multiMap(float val)
 {
-}
+    //  take care the value is within range
+    //  val = constrain(val, _in[0], _in[_size-1]);
+    if (val <= _in[0])       return _out[0];
+    if (val >= _in[_size-1]) return _out[_size-1];
 
-HX711_MPC::~HX711_MPC() : ~HX711()
-{
-}
+    //  search right interval
+    uint8_t pos = 1;  //  _in[0] already tested
+    while(val > _in[pos]) pos++;
 
+    //  this will handle all exact "points" in the _in array
+    if (val == _in[pos]) return _out[pos];
 
-HX711_MPC::getCalibration(uint8_t index, uint32_t * raw, uint16_t * weight)
-{
-  _rawData[index] = raw;
-  _weights[index] = weight;
+    //  interpolate in the right segment for the rest
+    return (val - _in[pos-1]) * (_out[pos] - _out[pos-1]) / (_in[pos] - _in[pos-1]) + _out[pos-1];
 }
 
 
-HX711_MPC::setCalibration(uint8_t index, uint32_t * raw, uint16_t * weight)
-{
-  raw    = _rawData[index];
-  weight = _weights[index];
-}
-*/
 
 //  -- END OF FILE --
 
