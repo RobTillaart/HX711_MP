@@ -22,10 +22,10 @@ Good news is that it is based upon tested code, so no big problems are expected.
 The original HX711 library uses a linear relation between raw measurements and weights.
 This improved library uses multi point calibration - up to 10 points for now.
 This allows to compensate for non-linearities in the readings of the sensor.
-Between these calibration points interpolation is still linear 
+Between these calibration points interpolation is still linear.
 
-An **important** difference is that the HX711_MP (version now) does not interpolate beyond 
-the calibrated ranges.
+**WARNING: An important difference is that HX711_MP (version now) does not 
+interpolate beyond the calibration data points.**
 
 If problems occur or there are questions, please open an issue at GitHub.
 
@@ -40,22 +40,22 @@ If problems occur or there are questions, please open an issue at GitHub.
 Although the library is derived from the HX711 library they are not compatible.
 Almost is the right word here.
 
-Due to the different way of calibration the default **tare()** function is not supported. 
-This function used to calculate the offset in the raw data to get the zero value.
+Due to the different way of calibration the default **tare()** function is not 
+supported any more.
+This function used to calculate the offset in the raw data to get the zero point.
 As in the multi point calibration there are up to 10 points that can indicate
 the zero point the whole concept of offset and scale has "left the building".
 
 In practice the return value of **get_value()**, **read()** functions et al differs 
-from the HX711 library (zero / tare offset is missing).
-This means they are not 1 to 1 interchangeable, even a HX711_MP with only two points 
-will behave slightly differently. 
+that original raw-zero offset from the HX711 library.
+This means the libraries are not 1 to 1 interchangeable, even a HX711_MP with only 
+two points will behave slightly differently on this point.
 This is even more true as the zero point does not need to be the lowest possible value.
-Due to the support of non linear negative weights / forces the zero point can be at any 
-point in the array.
+Due to the support of non linear negative weights / forces the zero point can be at 
+any point in the array.
 
 The performance is not tested yet, expect a slightly slower **get_units()** as there
 is more math involved for converting raw data to weights.
-
 
 
 ## Interface
@@ -178,18 +178,18 @@ Typical use is to hardcode earlier found values in the setup() phase.
 to a certain weight.
 Note the index is zero based so a size of 10 uses index 0..9.
 - **float getCalibrateSize()** returns the size of the internal array, typical 2..10
-- **float getCalibrateRaw(uint8_t index)** get the raw value at the array.
+- **float getCalibrateRaw(uint8_t index)** get the raw value for the calibration point at index.
 Returns 0 is index is out of range.
 - **float adjustCalibrateRaw(uint8_t index, float amount)** changes the raw value at the array.
 Returns 0 is index is out of range.
 Used for run time calibration.
-- **float getCalibrateWeight(uint8_t index)** get the mapped weight at the array index.
+- **float getCalibrateWeight(uint8_t index)** get the mapped weight for the calibration point at index.
 Returns 0 is index is out of range.
 
-This way of calibration allows 
-- compensate for a non linear sensor by interpolating linear over multiple points.
+This way of calibration allows:
+- to compensate for a non linear sensor by interpolating linear between two adjacent points.
 - to adjust runtime the values in the array, adjusting the mapping.
-- the use of negative weights (forces)
+- to use of negative weights (forces) as the
 
 
 #### Power management
@@ -232,11 +232,6 @@ Another way to handle this is to add a good temperature sensor
 differences in your code.
 
 
-## Operation
-
-See examples
-
-
 ## Future
 
 Points from HX711 are not repeated here
@@ -266,6 +261,7 @@ Points from HX711 are not repeated here
 - add error handling?
   - HX711_INDEX_OUT_OF_RANGE
   - ??
+- investigate temperature compensation.
 
 #### Wont
 
