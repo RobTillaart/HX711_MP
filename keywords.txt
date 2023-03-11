@@ -35,6 +35,7 @@ get_gain	KEYWORD2
 setCalibrate	KEYWORD2
 getCalibrateSize	KEYWORD2
 getCalibrateRaw	KEYWORD2
+adjustCalibrateRaw	KEYWORD2
 getCalibrateWeight	KEYWORD2
 
 power_down	KEYWORD2
