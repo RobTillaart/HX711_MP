@@ -7,13 +7,16 @@
 
 #include "HX711_MP.h"
 
-//  6 calibration points
-//  0 = Tare
-//  1,2,3,..8,9 is user defined.
+
+//  10 calibration points
+//  all user defined.
 HX711_MP scale(10);
 
+
+//  adjust pins to your setup.
 uint8_t dataPin = 16;
 uint8_t clockPin = 17;
+
 
 uint32_t start, stop;
 volatile float f;
@@ -23,8 +26,8 @@ void setup()
 {
   Serial.begin(115200);
   // Serial.println(__FILE__);
-  // Serial.print("LIBRARY VERSION: ");
-  // Serial.println(HX711_LIB_VERSION);
+  // Serial.print("HX711_MP_LIB_VERSION: ");
+  // Serial.println(HX711_MP_LIB_VERSION);
   // Serial.println();
 
   scale.begin(dataPin, clockPin);

@@ -138,15 +138,16 @@ public:
   //
   //  put a series of SIZE known weights on the scale in increasing order
   //      thereby skipping 0 (as that is the tare)
-  //  call calibrate_scale(idx, raw, weight)
-  //       idx    = 0..size -1
+  //  call calibrate_scale(index, raw, weight)
+  //       index  = 0..size -1
   //       raw    = raw read = getValue() made in any mode
   //       weight = weight in units
   //  setCalibrate() can be adjusted runtime.
-  bool     setCalibrate(uint8_t idx, float raw, float weight);
+  bool     setCalibrate(uint8_t index, float raw, float weight);
   uint8_t  getCalibrateSize();
-  float    getCalibrateRaw(uint8_t idx);
-  float    getCalibrateWeight(uint8_t idx);
+  float    getCalibrateRaw(uint8_t index);
+  float    adjustCalibrateRaw(uint8_t index, float amount);
+  float    getCalibrateWeight(uint8_t index);
 
 
   ///////////////////////////////////////////////////////////////

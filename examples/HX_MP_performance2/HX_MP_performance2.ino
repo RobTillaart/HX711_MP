@@ -1,5 +1,5 @@
 //
-//    FILE: HX_performance2.ino
+//    FILE: HX_MP_performance2.ino
 //  AUTHOR: Rob Tillaart
 // PURPOSE: HX711_MP demo
 //     URL: https://github.com/RobTillaart/HX711_MP
@@ -7,10 +7,15 @@
 
 #include "HX711_MP.h"
 
+
+//  10 calibration points
+//  all user defined.
 HX711_MP scale(10);
 
+//  adjust pins to your setup.
 uint8_t dataPin = 16;
 uint8_t clockPin = 17;
+
 
 uint32_t start, stop;
 volatile float f;

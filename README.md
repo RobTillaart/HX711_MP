@@ -7,20 +7,28 @@
 
 # HX711_MP
 
-Arduino library for HX711 24 bit ADC used for load cells. Has multipoint calibration (MP).
+Arduino library for HX711 24 bit ADC used for load cells. 
+Has a multipoint calibration (MP) to compensate for non-linear sensor readings.
 
 
 ## Description
 
-This https://github.com/RobTillaart/HX711_MP library is derived from version 0.3.5 of https://github.com/RobTillaart/HX711.
+This https://github.com/RobTillaart/HX711_MP library is derived from https://github.com/RobTillaart/HX711
+version 0.3.5. Although related and partly similar interface there are not compatible.
 
 Currently HX711_MP is experimental and need to be tested more. 
-Good news is that it is based upon tested code, so no big problems are expected. 
-Otherwise please open an issue at GitHub.
+Good news is that it is based upon tested code, so no big problems are expected.
 
-This library uses a multi point calibration - up to 10 points - which allows to 
-compensate for non-linearities in the sensor.
-The HX711 library uses a simpler linear relation between raw measurements and weights.
+The original HX711 library uses a linear relation between raw measurements and weights.
+This improved library uses multi point calibration - up to 10 points for now.
+This allows to compensate for non-linearities in the readings of the sensor.
+Between these calibration points interpolation is still linear 
+
+An **important** difference is that the HX711_MP (version now) does not interpolate beyond 
+the calibrated ranges.
+
+If problems occur or there are questions, please open an issue at GitHub.
+
 
 #### Related 
 
@@ -30,16 +38,24 @@ The HX711 library uses a simpler linear relation between raw measurements and we
 #### Differences HX711
 
 Although the library is derived from the HX711 library they are not compatible.
-Almost is the right word.
+Almost is the right word here.
 
-Due to the different way of calibration the default **tare()** function is not
-supported anymore. 
-This function calculated the offset in the raw data to get the zero value.
+Due to the different way of calibration the default **tare()** function is not supported. 
+This function used to calculate the offset in the raw data to get the zero value.
+As in the multi point calibration there are up to 10 points that can indicate
+the zero point the whole concept of offset and scale has "left the building".
 
-As in the multi point calibration there are up to 10 points that indicate
-the zero point the whole concept of offset and scale have "left the building".
+In practice the return value of **get_value()**, **read()** functions et al differs 
+from the HX711 library (zero / tare offset is missing).
+This means they are not 1 to 1 interchangeable, even a HX711_MP with only two points 
+will behave slightly differently. 
+This is even more true as the zero point does not need to be the lowest possible value.
+Due to the support of non linear negative weights / forces the zero point can be at any 
+point in the array.
 
-In practice this means that the return value of **get_value()**, **read()** functions et al are differs from the HX711 library. This means they are not one to one interchangeable (e.g. HX711_MP with 2 points behaves differently). This is more true as the zero point does not need to be the index = 0 of the array. ( due to the support of non linear negative forces ).
+The performance is not tested yet, expect a slightly slower **get_units()** as there
+is more math involved for converting raw data to weights.
+
 
 
 ## Interface
@@ -51,7 +67,8 @@ In practice this means that the return value of **get_value()**, **read()** func
 #### Base
 
 - **HX711_MP(uint8_t size)** constructor. 
-Parameter sets the size of for the calibration arrays. 2..10.
+Parameter sets the size of for the calibration arrays. 
+Allowed range for size is 2..10.
 - **~HX711_MP()**
 - **void begin(uint8_t dataPin, uint8_t clockPin)** sets a fixed gain 128 for now.
 - **void reset()** set internal state to start condition.
@@ -139,7 +156,7 @@ to keep memory footprint relative low.
 
 Get values from the HX711.
 
-Note that in **HX711_RAW_MODE** times will be ignored => just call **read()** once.
+Note that in **HX711_RAW_MODE** the times parameter will be ignored => just call **read()** once.
 
 - **float get_value(uint8_t times = 1)** return raw value, optional averaged etc.
 - **float get_units(uint8_t times = 1)** return units, typical grams.
@@ -157,14 +174,17 @@ Note: Increasing indices must have an increasing raw number.
 
 Typical use is to hardcode earlier found values in the setup() phase.
 
-- **bool setCalibrate(uint8_t idx, float raw, float weight)** maps a raw measurement
+- **bool setCalibrate(uint8_t index, float raw, float weight)** maps a raw measurement
 to a certain weight.
 Note the index is zero based so a size of 10 uses index 0..9.
 - **float getCalibrateSize()** returns the size of the internal array, typical 2..10
-- **float getCalibrateRaw(uint8_t idx)** get the raw value at the array.
-Returns 0 is idx is out of range.
-- **float getCalibrateWeight(uint8_t idx)** get the mapped weight at the array index.
-Returns 0 is idx is out of range.
+- **float getCalibrateRaw(uint8_t index)** get the raw value at the array.
+Returns 0 is index is out of range.
+- **float adjustCalibrateRaw(uint8_t index, float amount)** changes the raw value at the array.
+Returns 0 is index is out of range.
+Used for run time calibration.
+- **float getCalibrateWeight(uint8_t index)** get the mapped weight at the array index.
+Returns 0 is index is out of range.
 
 This way of calibration allows 
 - compensate for a non linear sensor by interpolating linear over multiple points.
@@ -228,6 +248,8 @@ Points from HX711 are not repeated here
 - update documentation
 - test a lot
   - different load cells.
+- investigate interpolation beyond calibration range.
+
 
 #### Should
 
@@ -236,10 +258,14 @@ Points from HX711 are not repeated here
 - investigate malloc/free for the mapping arrays
 - add performance figures
 - Calibration
-  - Returns 0 is idx is out of range ==> NaN ?
+  - Returns 0 is index is out of range ==> NaN ?
+
 
 #### Could
 
+- add error handling?
+  - HX711_INDEX_OUT_OF_RANGE
+  - ??
 
 #### Wont
 
