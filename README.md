@@ -55,6 +55,11 @@ This library does not provide means to control the **RATE**.
 - https://github.com/RobTillaart/HX711_MP
 
 
+#### Faulty boards
+
+- https://forum.arduino.cc/t/load-cell-amplifier-hx711-wrong-ground/1046075
+
+
 #### Differences HX711
 
 Although the library is derived from the HX711 library they are not compatible.
