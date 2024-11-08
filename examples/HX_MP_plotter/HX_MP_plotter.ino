@@ -18,8 +18,7 @@ uint8_t dataPin = 16;
 uint8_t clockPin = 17;
 
 
-uint32_t start, stop;
-volatile float f;
+float f;
 
 
 void setup()
