@@ -403,6 +403,7 @@ void HX711_MP::power_up()
 //
 void HX711_MP::set_rate_pin(uint8_t pin)
 {
+  _ratePin = pin;
   pinMode(_ratePin, OUTPUT);
   set_rate_10SPS();
 }
