@@ -46,11 +46,14 @@ public:
   ~HX711_MP();
 
   //  fixed gain 128 for now
-  void     begin(uint8_t dataPin, uint8_t clockPin, bool fastProcessor = false);
+  void     begin(uint8_t dataPin, uint8_t clockPin,
+                 bool fastProcessor = false,
+                 bool doReset = true);
 
   void     reset();
 
   //  checks if load cell is ready to read.
+  //  use this to prevent blocking reads, esp at startup, 1st read.
   bool     is_ready();
 
   //  wait until ready,
@@ -66,7 +69,8 @@ public:
   //
   //  READ
   //
-  //  raw read
+  //  raw read, is blocking until device is ready to read().
+  //  this blocking period can be long up to 400 ms in first read() call.
   float    read();
 
   //  get average of multiple raw reads
@@ -101,11 +105,10 @@ public:
   void     set_runavg_mode();
   uint8_t  get_mode();
 
-
-  //  primary user functions
+  //  raw reads without offset == different than HX711 library.
   //  in HX711_RAW_MODE the parameter times will be ignored.
   float    get_value(uint8_t times = 1);
-  //  converted to proper units.
+  //  converted to proper units, corrected for scale.
   //  in HX711_RAW_MODE the parameter times will be ignored.
   float    get_units(uint8_t times = 1);
 
@@ -174,7 +177,7 @@ public:
   uint32_t last_time_read();
   //  obsolete in the future
   [[deprecated("Use last_time_read() instead.")]]
-  uint32_t last_read();
+  uint32_t last_read() { return last_time_read(); };
 
 
   ///////////////////////////////////////////////////////////////
