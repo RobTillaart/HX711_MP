@@ -94,7 +94,7 @@ public:
   //  get running average over times measurements.
   //  the weight alpha can be set to any value between 0 and 1
   //  times = 1 or more.
-  float    read_runavg(uint8_t times = 7, float alpha = 0.5);
+  float    read_runavg(uint8_t times = 7, float alpha = 0.5f);
 
 
   ///////////////////////////////////////////////////////////////
